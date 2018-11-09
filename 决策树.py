@@ -22,12 +22,12 @@ def condition_entropy(data,n,value): #计算条件熵，其中data是数据集�
 #令p_all[i] 为value自变量的分类个数 x[i] / 样本总值  ，p[i]为value自变量分类（如性别分为‘0,1’二分类）下因变量分类结果个数y[i] / x[i]
 #则有条件熵 = (（(p[i] * log(p[i]).sum()）* p_all[i]).sum()    
     p_all = data[value].groupby(data[value]).count() / len(data) 
-    grouped = data.groupby([value, data.columns[0]])[value].count().unstack(0).astype(float)
-    if any(grouped.isnull()) == True:
-        return 10000.00
+    grouped = data.groupby([value, data.columns[n]])[value].count().unstack(0).astype(float).fillna(0)
+    p = grouped.div(grouped.sum(axis=0), axis=1)
+    if len((p * np.log(p)).fillna(0).sum(axis=0)) != len(p_all):
+        return D_entropy(data, n)[0]
     else:
-        p = grouped / grouped.sum(axis=0)
-        return -((p * np.log(p)).sum(axis=0) * p_all).sum()
+        return -(((p * np.log(p)).fillna(0).sum(axis=0)) * p_all).sum()
 
 def KLIC(data,n):
     klic_dit = {}
@@ -50,16 +50,24 @@ def max_dit(data,n):
 
 def DecisonTree(data, n, q=5,):
     type_variable_dit = {}
-    select_value = KLIC(data, n)
-    type_value_dit = {}
-    for type_value in data[select_value].unique():
-        type_data = data[data[select_value] == type_value].drop(select_value, axis=1)
-        if len(type_data) <= q:
-            type_value_dit[type_value] = max_dit(type_data, n)
-        else:
-            type_value_dit[type_value] = DecisonTree(type_data,n,q=5)
-    type_variable_dit[select_value] = type_value_dit
-    return type_variable_dit
+    try:
+        select_value = KLIC(data, n)
+        type_value_dit = {}
+        for type_value in data[select_value].unique():
+            type_data = data[data[select_value] == type_value].drop(select_value, axis=1)
+            if D_entropy(type_data, n)[0] >= 0.8:
+               type_value_dit[type_value] = max_dit(type_data, n)
+            else:
+                if len(type_data) <= q:
+                  type_value_dit[type_value] = max_dit(type_data, n)
+                elif len(type_data.columns) <= 1:
+                 type_value_dit[type_value] = max_dit(type_data, n)
+                else:
+                 type_value_dit[type_value] = DecisonTree(type_data,n,q=5)
+        type_variable_dit[select_value] = type_value_dit
+        return type_variable_dit
+    except:
+        print(type_value)
 
     
 
@@ -67,8 +75,19 @@ def DecisonTree(data, n, q=5,):
 #但是很有可能这类自变量与因变量之间并不存在多少关系，可以做变量剔除
 
         
+#基尼系数计算特征划分
 
-        
+#data为入参数据，n为因变量所在列索引 
+def GINI(data, n):
+    p = data.groupby(data.columns[n])[data.columns[n]].count().astype(float) / len(data)
+    return 1 - (p**2).sum()
+
+#同上，value为需要计算的自变量名称
+def Condition_GINI(data, n, value):
+    p_gini =  data.groupby([value, data.columns[n]])[data.columns[n]].count().unstack(1).fillna(0).div(data.groupby([value, data.columns[n]])[data.columns[n]].count().unstack(1).sum(axis=1), axis=0)
+    gini = 1 - (p_gini**2).sum(axis=1)
+    p = data.groupby(value).count()[data.columns[n]] / len(data)
+    return (p*gini).sum()        
 
 
 
