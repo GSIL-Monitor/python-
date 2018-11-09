@@ -2,8 +2,6 @@
 import numpy as np
 import pandas as pd
 
-data = pd.DataFrame([[1,0,0,-1],[1,0,1,1],[1,1,0,1],[1,1,1,1],[0,0,1,-1],[0,1,0,-1],[0,1,1,1],[0,0,0,-1]],columns=['X1', 'X2', 'X3', 'Y'])
-
 def Perceptron(data, n, alpha=0.01,error_times=3):
     #改成浮点数，方便后续计算
     data = data.astype(float)
