@@ -34,7 +34,7 @@ data = data.astype(float)
 X = data.iloc[:,:3]
 Y = data['ISCOLLEGE']
 X = sm.add_constant(X)
-model = sm.Logit(Y,X)  #不太清楚，但是后续可以在跟进问下，有两个方面猜想1.我的哑变量需要转为浮点数，2:。我的X跟Y可能都是DataFrame格式
+model = sm.Logit(Y,X)  #不太清楚，但是后续可以在跟进问下，有两个方面猜想1.我的哑变量需要转为浮点数，2:我的X跟Y可能都是DataFrame格式
 result = model.fit()
 print result.summary()
 

@@ -39,9 +39,9 @@ def AdaBoost(data, n, k=40):
         Y_estimate = result.predict(data.drop(data.columns[n], axis=1).astype(float)) #根据拟合模型预测数据
         classification_dict = {}
         for i in np.arange(0.10, 1.00, 0.01): #按照0.10, 0.11, 0.12划分决策点寻找最优分类点
-            classification_point = round(i, 2) #arange函数BUG，需要选择
-            Y_classification = np.where(Y_estimate >= classification_point, 1, 0)
-            error_rate = (np.abs(Y - Y_classification)).sum() / len(Y).astype(float)
+            classification_point = round(i, 2) #arange函数BUG，需要四舍五入保留2位小数点
+            Y_classification = np.where(Y_estimate >= classification_point, 1, 0) #根据划分点分类
+            error_rate = (np.abs(Y - Y_classification)).sum() / len(Y).astype(float) #实际0-预测0=0，实际0-预测1=-1，实际1-预测0=1，实际1-预测1=0；
             classification_dict[classification_point] = error_rate
         best_error_rate = classification_dict[min(classification_dict, key=classification_dict.get)]
         best_classification_point = min(classification_dict, key=classification_dict.get)
