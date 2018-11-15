@@ -24,10 +24,13 @@ data.loc[data['学习成绩']=='优', '学习成绩'] = 3 #设定成绩优秀为
 
 #data.sample(n, replace, weights, axis): n为要求抽取出来的样本集数量， replace要求是否有放回均匀分布， weights为对每个data的样本设定抽样概率（series格式），axis=0要求抽行样本。
 
-def AdaBoost(data, n, k=40):
+def AdaBoost_model(data, n, k=40):
     probability = pd.Series([1 / len(data)] * len(data), index=data.index) #放在循环外面，不然迭代抽样概率分布时重置了
     classification_point_list = []
     model_list = []
+    alpha_list = []
+    Y_classification_updata = pd.Series(np.zeros(len(data)))
+    Updata_ErrorRate_list = []
     for i in np.arange(k):
         sampling_data = data.sample(n = len(data), replace=True, weights=probability, axis=0)
         X = sampling_data.drop(sampling_data.columns[n], axis=1).astype(float)
@@ -54,12 +57,34 @@ def AdaBoost(data, n, k=40):
             classification_point_list.append(best_classification_point)
             model_list.append(result)
             alpha = 0.5 * np.log((1 - best_error_rate) / best_error_rate) #计算权重系数
-            Y_classification = np.where(Y_estimate >= best_classification_point, 1, 0).astype(float) #分类数据
+            alpha_list.append(alpha)
+            Y_classification = pd.Series(np.where(Y_estimate >= best_classification_point, 1, 0).astype(float)) #分类数据
             Y[Y==0.0] = -1.0
             Y_classification[Y_classification==0.0] = -1.0 #将0改为-1，方便后续计算
             Z = (np.exp(-alpha * (Y * Y_classification)) * probability).sum() #计算归一化因子
             probability = (probability * np.exp(-alpha * (Y * Y_classification))) / Z #迭代抽样分布概率系数
-    return model_list, classification_point_list #良好完成迭代，返回model集，分类点集
+            Y_classification_updata =Y_classification_updata + alpha * Y_classification
+            Updata_Y_classification = pd.Series(np.where(Y_classification_updata >= 0, 1, 0))
+            Y[Y==-1.0] = 0.0
+            Updata_error_rate = (np.abs(Y - Updata_Y_classification).sum()) / len(Y)
+            Updata_ErrorRate_list.append(Updata_error_rate)
+
+    return model_list, classification_point_list, alpha_list, Updata_ErrorRate_list #良好完成迭代，返回model集，分类点集，最终分类器分类误差率
+
+
+def Predict(data, n, test, k=40):
+    model_list, classification_point_list, alpha_list, Updata_ErrorRate_list = AdaBoost_model(data, n, k)
+    Y_classification_updata = pd.Series(np.zeros(len(data)))
+    for i in np.arange(len(model_list)):
+        test['xb'] = 1.0
+        test = test.astype(float)
+        Y_elsimate = model_list[i].predict(test)
+        Y_classification = pd.Series(np.where(Y_elsimate>=classification_point_list[i], 1.0, 0.0))
+        Y_classification_updata = Y_classification_updata + alpha_list[i] * Y_classification
+    Y_classification_finally
+
+
+
 
 
 
