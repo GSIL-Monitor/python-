@@ -41,25 +41,25 @@ def AdaBoost(data, n, k=40):
         for i in np.arange(0.10, 1.00, 0.01): #按照0.10, 0.11, 0.12划分决策点寻找最优分类点
             classification_point = round(i, 2) #arange函数BUG，需要四舍五入保留2位小数点
             Y_classification = np.where(Y_estimate >= classification_point, 1, 0) #根据划分点分类
-            error_rate = (np.abs(Y - Y_classification)).sum() / len(Y).astype(float) #实际0-预测0=0，实际0-预测1=-1，实际1-预测0=1，实际1-预测1=0；
+            error_rate = (np.abs(Y - Y_classification)).sum() / len(Y).astype(float) #实际0-预测0=0，实际0-预测1=-1，实际1-预测0=1，实际1-预测1=0；因此Y-Y预测进行绝对值化求和得到预测错误样本比
             classification_dict[classification_point] = error_rate
-        best_error_rate = classification_dict[min(classification_dict, key=classification_dict.get)]
-        best_classification_point = min(classification_dict, key=classification_dict.get)
-
-        if best_error_rate == 0.00:
+        best_error_rate = classification_dict[min(classification_dict, key=classification_dict.get)] #选择最小误差率
+        best_classification_point = min(classification_dict, key=classification_dict.get) #选择最小误差率对应决策点
+#针对该误差率进行计算优化：
+        if best_error_rate == 0.00: #不存在误差，终止再次迭代
             break
-        elif best_error_rate >= 0.50:
+        elif best_error_rate >= 0.50: #误差反而过大，需要归0重新开始抽样跑算法
             return AdaBoost(data, n, k=40)
-        else:
+        else: #情况良好，误差率降低中
             classification_point_list.append(best_classification_point)
             model_list.append(result)
-            alpha = 0.5 * np.log((1 - best_error_rate) / best_error_rate)
-            Y_classification = np.where(Y_estimate >= best_classification_point, 1, 0).astype(float)
+            alpha = 0.5 * np.log((1 - best_error_rate) / best_error_rate) #计算权重系数
+            Y_classification = np.where(Y_estimate >= best_classification_point, 1, 0).astype(float) #分类数据
             Y[Y==0.0] = -1.0
-            Y_classification[Y_classification==0.0] = -1.0
-            Z = (np.exp(-alpha * (Y * Y_classification)) * probability).sum()
-            probability = (probability * np.exp(-alpha * (Y * Y_classification))) / Z
-    return model_list, classification_point_list
+            Y_classification[Y_classification==0.0] = -1.0 #将0改为-1，方便后续计算
+            Z = (np.exp(-alpha * (Y * Y_classification)) * probability).sum() #计算归一化因子
+            probability = (probability * np.exp(-alpha * (Y * Y_classification))) / Z #迭代抽样分布概率系数
+    return model_list, classification_point_list #良好完成迭代，返回model集，分类点集
 
 
 
