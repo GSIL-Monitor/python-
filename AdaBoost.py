@@ -39,7 +39,7 @@ def AdaBoost_model(data, n, k=40):
         X = sampling_data.drop(sampling_data.columns[n], axis=1).astype(float)
         Y = sampling_data.iloc[:, n].astype(float)
         #想了一想，用LR虽然也可以做分类，但是要在估计概率值上再次测试分类点，工具比较麻烦;后面可以调试换朴素贝叶斯/KNN/SVM试试
-        #用LR被证明是错误的，因为LR的分类逻辑与决策树等分类器理念不同，刻意重视误分类样本只会导致模型崩溃，误差无限大
+        #用LR被证明是错误的，因为LR的分类逻辑与决策树等分类器理念不同，刻意重视误分类样本只会导致模型崩溃，误差无限大，但是外网有存在Logitboost，所以比较困惑，后面有机会再启动修改。
         model = sm.Logit(Y, X) #拟合模型
         result = model.fit() #拟合模型
         Y_estimate = result.predict(X).astype(float) #根据拟合模型预测数据
