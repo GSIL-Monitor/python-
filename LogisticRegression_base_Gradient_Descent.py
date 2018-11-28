@@ -8,18 +8,18 @@ def Logic_func(X, params): #逻辑回归的分类模型
     return 1 / (1 + np.exp(X.dot(params)))
 
 def Logic_cost(X, Y, params): #逻辑回归的代价函数
-    Y_predict = Logic_func(X, Y, params)
-    return -(Y * np.log(Y_predict) + (1 - Y) * np.log(1 - Y_predict)).sum()
+    Y_predict = Logic_func(X, params)
+    return (-(Y.dot(np.log(Y_predict)) + (1 - Y).dot(np.log(1 - Y_predict))))[0]
 
 def LRGD(data, n, times=10000, threshold_change=0.0001, alpha=0.001, error_threshold=0.05):
     #数据处理
     data = data.astype(float)
-    data['x0'] = 1.0
     X = data.drop(data.columns[n], axis=1)
+    X['x0'] = 1.0
     Y = data.iloc[:, n]
 
     count = 0
-    params = np.zeros((len(data.columns), 1))
+    params = np.zeros((len(X.columns), 1))
     errors_dict = {}
     params_dict = {}
 
@@ -29,7 +29,7 @@ def LRGD(data, n, times=10000, threshold_change=0.0001, alpha=0.001, error_thres
             errors_dict[count] = error
             params_dict[count] = params
             Y_predict = Logic_func(X, params)
-            params = params - np.array(alpha * (((Y_predict - Y).dot(X)) / float(len(Y)))).reshape(params.shape[0], 1) #更新params
+            params = params - np.array(alpha * X.T.dot(Y_predict.sub(Y, axis=0))) / float(len(Y)) #更新params
             count = count + 1
             error = Logic_cost(X, Y, params)
             if error <= error_threshold: #本次params实现的误差小于阈值，提前终止梯度下降
@@ -40,7 +40,7 @@ def LRGD(data, n, times=10000, threshold_change=0.0001, alpha=0.001, error_thres
                 errors_dict[count] = error
                 params_dict[count] = params
                 Y_predict = Logic_func(X, params)
-                params = params - np.array(alpha * (((Y_predict - Y).dot(X)) / float(len(Y)))).reshape(params.shape[0], 1)
+                params = params - np.array(alpha * X.T.dot(Y_predict.sub(Y, axis=0))) / float(len(Y))
                 count = count + 1
                 error = Logic_cost(X, Y, params)
                 if error <= error_threshold:
