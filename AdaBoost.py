@@ -7,8 +7,8 @@ import statsmodels.api as sm
 data = pd.read_excel(r'E:\python\python自己产出\统计学学习数据.xlsx', sheet_name=2)
 data.drop(data.columns[0], axis=1, inplace=True)
 
-data.loc[data['上大学否']=='否', '上大学否'] = -1 #设定未上大学定义为-1 #逻辑回归分类器需要设置为0
-data.loc[data['上大学否']!= -1, '上大学否'] = 1   #设定上大学定义为1
+data.loc[data['上大学否']=='否', '上大学否'] = 0 #设定未上大学定义为-1 #逻辑回归分类器需要设置为0
+data.loc[data['上大学否']!= 0, '上大学否'] = 1   #设定上大学定义为1
 data.loc[data['性别']=='男', '性别'] = 0 #设定男性为0
 data.loc[data['性别']=='女', '性别'] = 1 #设定女性为1
 data.loc[data['家庭条件']=='农村', '家庭条件'] = 0 #设定农村为0
