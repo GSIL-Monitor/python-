@@ -31,7 +31,7 @@ def LRGD(data, n, times=10000, threshold_change=0.00000001, alpha=0.1, error_thr
             errors_dict[count] = error
             params_dict[count] = params
             Y_predict = Logic_func(X, params)
-            params = params - np.array(alpha * X.T.dot(Y_predict.sub(Y, axis=0))) / float(len(Y)) #更新params
+            params = params + np.array(alpha * X.T.dot(Y_predict.sub(Y, axis=0))) / float(len(Y)) #更新params
             count = count + 1
             error = Logic_cost(X, Y, params)
             if error <= error_threshold: #本次params实现的误差小于阈值，提前终止梯度下降
