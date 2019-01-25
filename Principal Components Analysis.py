@@ -18,5 +18,3 @@ def PCA(data, n, k):
     LinearMapping = pd.DataFrame(eigenvector, columns=eigenvalue).T.sort_index(ascending=False).iloc[:k, :]
     #返回变换后的数据集Y， 线性变换矩阵A
     return np.array(data).dot(LinearMapping.T), LinearMapping
-
-

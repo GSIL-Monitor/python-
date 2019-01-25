@@ -6,6 +6,7 @@ from email import encoders
 import email as eml
 import smtplib as smp
 import datetime as dt
+day = (dt.datetime.now() - dt.timedelta(days=1)).strftime("%m.%d")
 
 def  _format_addr(s):
     name, addr = eml.utils.parseaddr(s)
@@ -44,10 +45,9 @@ r_mail = [_format_addr('陈发金<chenfajin@mylike.com>'), _format_addr('李飞�
           _format_addr('左泽平<zuozeping@mylike.com>'), _format_addr('刘婉瑜<liuwanyu@mylike.com>'),
           _format_addr('汪昊<wanghao@mylike.com>'), _format_addr('俞成杰<yuchengjie@mylike.com>'), _format_addr('元雪<yuanxue@mylike.com>'),
           _format_addr('吴智强<wu.zhiqiang@yexfintech.com>'), ]
-text_ = """说明：\n\t为方便移动办公群体，新增html格式文件，支持手机/PC浏览器查看，内容包括商户、日期二维视角的进件量指标及放款指标。\n\tPC端中X轴透明框按住拉动可移动查看，按住透明框左右边缘的按钮可选择范围。手机端可以按住图表即可移动查看，二指外拉可放大范围，二指内缩可缩小范围。
-\t点击图表上方图例可以关闭开启该项数据，鼠标或手指放在图例上显示该图例所有数据标签，点击图表中数据条可显示该条数据值。\n\t点击图表右边第三个文档标志可查看图表具体数据值并修改。
-\nPS：新增“直连进件占比”指标，该指标是指颐尔信产品上线后，该商户仍使用百度APP直连进件的订单/ 该商户所有百度有钱花申请订单\n如有任何数据异常、无法查看等问题请及时回复邮件排除故障，谢谢！"""
-day = (dt.datetime.now() - dt.timedelta(days=1)).strftime("%m.%d")
+text_ = """说明：\n\t新增“直连进件占比”指标，该指标是指颐尔信产品上线后，该商户仍使用百度APP直连进件的订单/ 该商户所有百度有钱花申请订单。\n\t主表上线备注一栏，逻辑为如某日直连进件占比超过10%（含），则将该日直连进件占比超过0%的商户置入备注栏中作为标记。
+\t最后一张工作簿为昨日的直连进件详细表，方便各位排查直连占比过高原因。
+\nPS：有任何数据异常、无法查看等问题请及时回复邮件排除故障，谢谢！"""
 title = """颐尔信-百度有钱花%s进件汇总"""%day
 _path = [r'C:\Users\wuzhiqiang\Desktop\报表数据\颐尔信-百度有钱花%s进件汇总.xls'%day, r'C:\Users\wuzhiqiang\Desktop\报表数据\颐尔信-百度有钱花%s数据图.html'%day]
 _attachment_type1 = ['xls', 'html']
@@ -55,6 +55,6 @@ _attachment_type2 = ['xls', 'html']
 _attachment_name = ['颐尔信-百度有钱花%s进件汇总.xls'%day, '颐尔信-百度有钱花%s数据图.html'%day]
 password = '这是密码'
 
-#sendemail(s_mail, r_mail, title, text_, _path, _attachment_type1, _attachment_type2, _attachment_name, password)
+#sendemail(s_mail, r_mail, title, text_, _path, _attachment_type1, _attachment_type2, _attachment_name, password='python@139547')
 
 
